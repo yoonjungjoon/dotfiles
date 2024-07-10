@@ -1,4 +1,3 @@
-{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "ubuntu") -}}
 #!/bin/bash
 
 # Install/upgrade asdf
@@ -8,4 +7,3 @@ if [[ ! $(command -v asdf) ]]; then
 else
   asdf update
 fi
-{{ end -}}
