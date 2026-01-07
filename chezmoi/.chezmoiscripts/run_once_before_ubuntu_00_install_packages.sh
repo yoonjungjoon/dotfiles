@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if ! command -v apt >/dev/null 2>&1; then
+  exit 0
+fi
+
 sudo apt update
 sudo apt install -y unzip zsh
 

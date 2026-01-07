@@ -1,0 +1,5 @@
+{{- if eq .chezmoi.os "darwin" -}}
+{{ include "dot_config/alacritty/alacritty.darwin.toml" -}}
+{{- else if eq .chezmoi.os "linux" -}}
+{{ include "dot_config/alacritty/alacritty.linux.toml" -}}
+{{- end -}}

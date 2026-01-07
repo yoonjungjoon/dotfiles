@@ -78,9 +78,11 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  git 
-  zsh-syntax-highlighting
+  git
   zsh-autosuggestions
+  zsh-syntax-highlighting
+  fast-syntax-highlighting
+  zsh-autocomplete
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -119,9 +121,33 @@ fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-. "$HOME/.asdf/asdf.sh"
-fpath=(${ASDF_DIR}/completions $fpath)
+# asdf (supports ~/.asdf or Homebrew installs on macOS).
+if [[ -s "$HOME/.asdf/asdf.sh" ]]; then
+  . "$HOME/.asdf/asdf.sh"
+elif [[ -s /opt/homebrew/opt/asdf/libexec/asdf.sh ]]; then
+  . /opt/homebrew/opt/asdf/libexec/asdf.sh
+elif [[ -s /usr/local/opt/asdf/libexec/asdf.sh ]]; then
+  . /usr/local/opt/asdf/libexec/asdf.sh
+fi
+if [[ -n "${ASDF_DIR:-}" && -d "$ASDF_DIR/completions" ]]; then
+  fpath=(${ASDF_DIR}/completions $fpath)
+fi
 autoload -Uz compinit && compinit
 source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
+# Homebrew shellenv for macOS or Linux (if present).
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# ---- Helpers ----
+# Copy stdout to clipboard while still printing to terminal.
+# Use with: cmd | clip
+# To include stderr too: cmd |& clip
+clip() { tee >(pbcopy); }
