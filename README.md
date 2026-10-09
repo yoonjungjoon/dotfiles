@@ -44,13 +44,13 @@ on the machine running your terminal, including when connecting to a remote shel
 | Component | Purpose / installation |
 | --- | --- |
 | Zsh + Oh My Zsh | Shell, Git aliases; Oh My Zsh fetched by chezmoi |
-| Starship | Catppuccin Powerline prompt, Latte palette; Homebrew / official installer |
+| Starship | Catppuccin Powerline prompt, Mocha palette; Homebrew / official installer |
 | mise | Runtime versions and directory environment changes; Homebrew / official installer |
 | fzf + fzf-tab | Tab completion selection; fzf from Homebrew / apt, plugin from chezmoi |
 | zsh-completions | Extra completion definitions, registered before Oh My Zsh runs `compinit` |
 | zsh-autosuggestions | History-based suggestions, loaded after fzf-tab |
 | zsh-syntax-highlighting | The only highlighter, loaded last in `.zshrc` |
-| Ghostty | Terminal with Catppuccin Latte and Jetendard; Homebrew cask / apt |
+| Ghostty | Terminal with Catppuccin Mocha and Jetendard; Homebrew cask / apt |
 | Jetendard | Hangul + Nerd Font icons; pinned upstream TTF release, SHA-256 verified |
 | Zellij | Session and pane management; Homebrew / official Linux release binary |
 
@@ -96,12 +96,12 @@ execute it automatically.
 ## Prompt and terminal settings
 
 The prompt uses Starship's [Catppuccin Powerline preset](https://starship.rs/presets/catppuccin-powerline)
-with `palette = 'catppuccin_latte'`. It keeps a separate command input line and
+with `palette = 'catppuccin_mocha'`. It keeps a separate command input line and
 shows command durations after two seconds, without desktop notifications. Edit
 `chezmoi/dot_config/starship.toml` to customize it; chezmoi deploys the preset as
 configuration, so no separate theme installation command is needed.
 
-Ghostty uses `font-family = Jetendard` and its built-in `Catppuccin Latte` theme.
+Ghostty uses `font-family = Jetendard` and its built-in `Catppuccin Mocha` theme.
 Edit `chezmoi/dot_config/ghostty/config.tmpl` for terminal settings. The background
 is fully opaque (`background-opacity = 1.0`). The previous 13-point size, padding
 and editing shortcuts, including Shift+Enter, are retained. The OS-specific line
