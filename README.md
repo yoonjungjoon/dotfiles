@@ -101,10 +101,10 @@ shows command durations after two seconds, without desktop notifications. Edit
 `chezmoi/dot_config/starship.toml` to customize it; chezmoi deploys the preset as
 configuration, so no separate theme installation command is needed.
 
-SSH sessions show `user@hostname` in the first Powerline segment; local sessions
-show only the username. The hostname comes from the remote system (up to the first
-dot), not the client's SSH alias. Apply these dotfiles on the SSH server to enable
-this prompt there.
+Both local and SSH sessions show `user@hostname` in the first Powerline segment.
+The hostname comes from the system running the shell (up to the first dot), not
+the client's SSH alias. Apply these dotfiles on the SSH server to enable this
+prompt there.
 
 Ghostty uses `font-family = Jetendard` and its built-in `Catppuccin Mocha` theme.
 Edit `chezmoi/dot_config/ghostty/config.tmpl` for terminal settings. The background
