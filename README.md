@@ -29,27 +29,29 @@ chezmoi apply
 Open a new terminal after applying so the old asdf/direnv environment is not inherited.
 Ghostty starts Zsh; other terminals still use the account's configured login shell.
 
-On a headless server, skip the graphical terminal installation:
+On a headless server, skip the graphical terminal and local font installation:
 
 ```sh
-DOTFILES_INSTALL_GHOSTTY=0 chezmoi apply
+DOTFILES_INSTALL_GHOSTTY=0 DOTFILES_INSTALL_FONTS=0 chezmoi apply
 ```
 
-Set this variable on each apply on that server. The Ghostty installer checks on
-every apply, so a later apply without the variable can install it.
+Set these variables on each apply on that server. Both installers check on every
+apply, so a later apply without the variables can install them. Fonts are needed
+on the machine running your terminal, including when connecting to a remote shell.
 
 ## Managed components
 
 | Component | Purpose / installation |
 | --- | --- |
 | Zsh + Oh My Zsh | Shell, Git aliases; Oh My Zsh fetched by chezmoi |
-| Starship | Prompt; Homebrew on macOS, official installer on Linux |
+| Starship | Catppuccin Powerline prompt, Frappé palette; Homebrew / official installer |
 | mise | Runtime versions and directory environment changes; Homebrew / official installer |
 | fzf + fzf-tab | Tab completion selection; fzf from Homebrew / apt, plugin from chezmoi |
 | zsh-completions | Extra completion definitions, registered before Oh My Zsh runs `compinit` |
 | zsh-autosuggestions | History-based suggestions, loaded after fzf-tab |
 | zsh-syntax-highlighting | The only highlighter, loaded last in `.zshrc` |
-| Ghostty | Terminal; Homebrew cask / apt |
+| Ghostty | Terminal with Catppuccin Frappé and Jetendard; Homebrew cask / apt |
+| Jetendard | Hangul + Nerd Font icons; pinned upstream TTF release, SHA-256 verified |
 | Zellij | Session and pane management; Homebrew / official Linux release binary |
 
 Chezmoi refreshes Oh My Zsh and plugin archives weekly when applying. Oh My Zsh's
@@ -93,12 +95,30 @@ execute it automatically.
 
 ## Prompt and terminal settings
 
-Edit `chezmoi/dot_config/starship.toml` for the prompt and
-`chezmoi/dot_config/ghostty/config.tmpl` for the terminal. Ghostty preserves the
-previous 13-point font, 0.8 opacity, padding and editing shortcuts, including
-Shift+Enter. Install `JetBrainsMonoHangul Nerd Font Mono` separately for the
-preferred font; Ghostty uses its bundled fallback when that font is unavailable.
-The OS-specific line editing shortcuts use Command on macOS and Control on Linux.
+The prompt uses Starship's [Catppuccin Powerline preset](https://starship.rs/presets/catppuccin-powerline)
+with `palette = 'catppuccin_frappe'`. It keeps a separate command input line and
+shows command durations after two seconds, without desktop notifications. Edit
+`chezmoi/dot_config/starship.toml` to customize it; chezmoi deploys the preset as
+configuration, so no separate theme installation command is needed.
+
+Ghostty uses `font-family = Jetendard` and its built-in `Catppuccin Frappe` theme.
+Edit `chezmoi/dot_config/ghostty/config.tmpl` for terminal settings. The previous
+13-point size, 0.8 opacity, padding and editing shortcuts, including Shift+Enter,
+are retained. The OS-specific line editing shortcuts use Command on macOS and
+Control on Linux. Restart Ghostty after applying to pick up the font and theme.
+
+[Jetendard](https://github.com/kuskhan/jetendard) combines JetBrains Mono Nerd Font
+Mono with Pretendard Hangul. Chezmoi installs all 16 TTF styles from the pinned
+`v0.1.0` release after verifying its SHA-256 checksum:
+
+- macOS: `~/Library/Fonts/Jetendard`
+- Linux: `$XDG_DATA_HOME/fonts/Jetendard`, defaulting to `~/.local/share/fonts/Jetendard`
+
+Linux installs `fontconfig` through apt if necessary and refreshes the font cache.
+The installer skips a complete installation of the same release and repairs
+missing font files on a later apply. Set `DOTFILES_INSTALL_FONTS=0` to opt out.
+The font release and checksum are pinned in
+`chezmoi/.chezmoiscripts/run_before_15_install_jetendard.sh`; upgrades are explicit.
 
 Alacritty, Powerlevel10k, asdf, asdf-direnv, fast-syntax-highlighting and
 zsh-autocomplete are no longer installed or loaded by this configuration.

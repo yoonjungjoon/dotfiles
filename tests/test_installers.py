@@ -13,7 +13,7 @@ PACKAGES = "run_once_before_00_install_packages.sh"
 GHOSTTY = "run_before_10_install_ghostty.sh"
 
 MOCK = r'''
-import json, os, pathlib, sys
+import json, os, pathlib, shutil, sys
 name = pathlib.Path(sys.argv[0]).name
 args = sys.argv[1:]
 with open(os.environ["MOCK_LOG"], "a") as log:
@@ -31,13 +31,22 @@ elif name == "dpkg-query":
 elif name == "apt-cache":
     sys.exit(1 if os.environ.get("MOCK_NO_GHOSTTY") else 0)
 elif name == "apt-get":
-    sys.exit(23 if os.environ.get("MOCK_APT_FAIL") else 0)
+    if os.environ.get("MOCK_APT_FAIL"):
+        sys.exit(23)
+    if "fontconfig" in args:
+        target = pathlib.Path(sys.argv[0]).with_name("fc-cache")
+        target.write_text(pathlib.Path(sys.argv[0]).read_text())
+        target.chmod(0o755)
+elif name == "fc-cache":
+    sys.exit(1 if os.environ.get("MOCK_FONT_CACHE_FAIL") else 0)
 elif name == "curl":
     if os.environ.get("MOCK_DOWNLOAD_FAIL"):
         sys.exit(22)
     output = pathlib.Path(args[args.index("-o") + 1])
     # Simulate installer side effects in the isolated home.
-    if "https://mise.run" in args:
+    if os.environ.get("MOCK_FONT_ARCHIVE"):
+        shutil.copyfile(os.environ["MOCK_FONT_ARCHIVE"], output)
+    elif "https://mise.run" in args:
         output.write_text('#!/bin/sh\nprintf "#!/bin/sh\\n" > "$MISE_INSTALL_PATH"\nchmod +x "$MISE_INSTALL_PATH"\n')
     elif "https://starship.rs/install.sh" in args:
         output.write_text('#!/bin/sh\nprintf "#!/bin/sh\\n" > "$HOME/.local/bin/starship"\nchmod +x "$HOME/.local/bin/starship"\n')
@@ -49,7 +58,7 @@ elif name == "tar":
 '''
 
 
-class InstallerTests(unittest.TestCase):
+class InstallerHarness(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -64,7 +73,7 @@ class InstallerTests(unittest.TestCase):
             "MOCK_LOG": str(self.log), "TMPDIR": str(self.root),
         }
         for command in ("uname", "id", "sudo", "brew", "dpkg-query", "apt-cache",
-                        "apt-get", "add-apt-repository", "curl", "tar"):
+                        "apt-get", "add-apt-repository", "curl", "tar", "fc-cache"):
             target = self.bin / command
             target.write_text(f"#!{sys.executable}\n" + MOCK)
             target.chmod(0o755)
@@ -81,6 +90,8 @@ class InstallerTests(unittest.TestCase):
     def assert_success(self, result):
         self.assertEqual(result.returncode, 0, result.stderr)
 
+
+class InstallerTests(InstallerHarness):
     def test_linux_installs_tools_in_user_bin_and_uses_apt(self):
         self.assert_success(self.run_script(PACKAGES))
         calls = self.commands()
