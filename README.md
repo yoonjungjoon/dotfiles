@@ -2,11 +2,11 @@
 
 Chezmoi-managed Zsh configuration for macOS and Ubuntu.
 
-## Install the candidate branch
+## Install
 
 ```sh
 sh -c "$(curl -fsLS https://get.chezmoi.io)" -- \
-  init --apply --branch feat/candidate-2026-01 yoonjungjoon
+  init --apply yoonjungjoon
 ```
 
 Network access and package-manager privileges are required. macOS installs Homebrew
@@ -20,12 +20,12 @@ For an existing chezmoi checkout, commit or stash local changes first:
 
 ```sh
 chezmoi git -- fetch origin
-chezmoi git -- switch --track origin/feat/candidate-2026-01
+chezmoi git -- switch main
+chezmoi git -- pull --ff-only origin main
 chezmoi diff
 chezmoi apply
 ```
 
-If the branch already exists locally, use `chezmoi git -- switch feat/candidate-2026-01`.
 Open a new terminal after applying so the old asdf/direnv environment is not inherited.
 Ghostty starts Zsh; other terminals still use the account's configured login shell.
 
