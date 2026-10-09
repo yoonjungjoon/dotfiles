@@ -2,7 +2,7 @@ name: Validate dotfiles
 
 on:
   push:
-    branches: [main, feat/candidate-2026-01]
+    branches: [main]
   pull_request:
 
 permissions:
