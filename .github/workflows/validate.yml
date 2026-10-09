@@ -1,0 +1,40 @@
+name: Validate dotfiles
+
+on:
+  push:
+    branches: [main, feat/candidate-2026-01]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  installers:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test package-manager selection and installer failures
+        run: python3 -m unittest discover -s tests -v
+      - name: Check installer syntax
+        run: |
+          for script in chezmoi/.chezmoiscripts/*.sh; do
+            bash -n "$script"
+          done
+      - name: Install Zsh for syntax validation
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zsh
+      - name: Check Zsh syntax
+        run: zsh -n chezmoi/dot_zshrc
+      - name: Render chezmoi templates
+        run: |
+          curl -fsSL https://get.chezmoi.io -o "$RUNNER_TEMP/install-chezmoi.sh"
+          sh "$RUNNER_TEMP/install-chezmoi.sh" -b "$RUNNER_TEMP/bin"
+          "$RUNNER_TEMP/bin/chezmoi" --source "$PWD" execute-template --file \
+            chezmoi/.chezmoiscripts/run_onchange_after_20_install_mise_tools.sh.tmpl \
+            > "$RUNNER_TEMP/install-runtimes.sh"
+          bash -n "$RUNNER_TEMP/install-runtimes.sh"
+          "$RUNNER_TEMP/bin/chezmoi" --source "$PWD" execute-template --file \
+            chezmoi/dot_config/ghostty/config.tmpl

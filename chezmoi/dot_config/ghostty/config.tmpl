@@ -1,0 +1,22 @@
+# Preserve the previous terminal's font, spacing, opacity and editing shortcuts.
+# If the custom Hangul font is missing, Ghostty falls back to its bundled font.
+font-family = JetBrainsMonoHangul Nerd Font Mono
+font-size = 13
+background-opacity = 0.8
+window-padding-x = 25
+window-padding-y = 20
+window-padding-balance = false
+command = zsh --login
+
+keybind = alt+left=esc:b
+keybind = alt+right=esc:f
+{{ if eq .chezmoi.os "darwin" -}}
+keybind = super+left=text:\x01
+keybind = super+right=text:\x05
+keybind = super+backspace=text:\x17
+{{ else -}}
+keybind = ctrl+left=text:\x01
+keybind = ctrl+right=text:\x05
+keybind = ctrl+backspace=text:\x17
+{{ end -}}
+keybind = shift+enter=text:\x1b\r

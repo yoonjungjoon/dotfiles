@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+export PATH="$HOME/.local/bin:$PATH"
+if ! command -v mise >/dev/null 2>&1; then
+  if [[ -x /opt/homebrew/bin/mise ]]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+  elif [[ -x /usr/local/bin/mise ]]; then
+    export PATH="/usr/local/bin:$PATH"
+  fi
+fi
+
+# Explicit arguments avoid installing unrelated tools from a pre-existing
+# global mise configuration. This script changes when runtime versions change.
+cd "$HOME"
+{{ range (include "dot_tool-versions" | trim | splitList "\n") -}}
+{{ $tool := . | splitList " " -}}
+mise install {{ index $tool 0 }}@{{ index $tool 1 }}
+{{ end -}}
